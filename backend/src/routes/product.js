@@ -66,7 +66,18 @@ router.put('/:id', auth, admin, async (req, res) => {
 
 router.delete('/:id', auth, admin, async (req, res) => {
   try {
-    await prisma.product.delete({ where: { id: parseInt(req.params.id) } });
+    const id = parseInt(req.params.id);
+
+    // Block delete if product is referenced in any order
+    const orderItemCount = await prisma.orderItem.count({ where: { productId: id } });
+    if (orderItemCount > 0) {
+      return res.status(400).json({ error: 'Cannot delete a product that has existing orders.' });
+    }
+
+    // CartItems are transient — safe to delete
+    await prisma.cartItem.deleteMany({ where: { productId: id } });
+
+    await prisma.product.delete({ where: { id } });
     res.json({ message: 'Product deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
