@@ -26,30 +26,34 @@ const useCartStore = create((set, get) => ({
       return { success: false, message: err.message };
     }
   },
-  
-  updateItem: async (productId, quantity) => {
-    set({ error: null });
-    try {
-      const { data } = await api.put('/cart', { productId, quantity });
-      set({ items: data.items || [] });
-      return { success: true };
-    } catch (err) {
-      set({ error: err.message });
-      return { success: false, message: err.message };
-    }
-  },
 
-  removeItem: async (productId) => {
-    set({ error: null });
-    try {
-      const { data } = await api.delete(`/cart/${productId}`);
-      set({ items: data.items || [] });
-      return { success: true };
-    } catch (err) {
-      set({ error: err.message });
-      return { success: false, message: err.message } ;
-    }
-  },
+  updateItem: async (itemId, quantity) => {
+  set({ error: null });
+  try {
+    await api.put(`/cart/${itemId}`, { quantity });
+    set((state) => ({
+      items: state.items.map((i) => i.id === itemId ? { ...i, quantity } : i)
+    }));
+    return { success: true };
+  } catch (err) {
+    set({ error: err.message });
+    return { success: false, message: err.message };
+  }
+},
+
+removeItem: async (itemId) => {
+  set({ error: null });
+  try {
+    await api.delete(`/cart/${itemId}`);
+    set((state) => ({
+      items: state.items.filter((i) => i.id !== itemId)
+    }));
+    return { success: true };
+  } catch (err) {
+    set({ error: err.message });
+    return { success: false, message: err.message };
+  }
+},
 
   clearCart: () => set({ items: [], error: null }),
   clearError: () => set({ error: null }),

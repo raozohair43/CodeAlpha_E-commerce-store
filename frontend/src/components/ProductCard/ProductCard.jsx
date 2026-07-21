@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
       <Link to={`/products/${product.id}`} className="product-card__link">
         <div className="product-card__img-wrap">
           <img
-            src={product.imageUrl || '/placeholder.png'}
+            src={product.image || '/placeholder.png'}
             alt={product.name}
             className="product-card__img"
             onError={(e) => { e.target.src = '/placeholder.png'; }}

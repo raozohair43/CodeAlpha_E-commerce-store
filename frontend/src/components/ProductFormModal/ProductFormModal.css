@@ -15,6 +15,8 @@
   width: 100%;
   max-width: 460px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;      
+  overflow-y: auto;
 }
 
 .modal h2 {
@@ -74,3 +76,81 @@
 
 .modal__actions button:disabled { opacity: 0.6; cursor: not-allowed; }
 .modal__actions button:hover:not(:disabled) { opacity: 0.88; }
+
+/* ── Image Section ── */
+.modal__img-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.modal__img-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.modal__toggle-btn {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.modal__toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.modal__toggle-btn:not(.active):hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ── File Input ── */
+.modal__file-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.modal__file-input {
+  padding: var(--space-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  width: 100%;
+}
+
+.modal__file-input:hover { border-color: var(--accent); }
+
+.modal__uploading {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ── Preview ── */
+.modal__preview {
+  width: 100%;
+  height: 160px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+}
+
+.modal__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -10,26 +10,53 @@ router.post('/', auth, async (req, res) => {
       where: { userId: req.user.id },
       include: { items: { include: { product: true } } }
     });
+
     if (!cart || cart.items.length === 0)
       return res.status(400).json({ error: 'Cart is empty' });
-    const total = cart.items.reduce((sum, item) => {
-      return sum + item.product.price * item.quantity;
-    }, 0);
-    const order = await prisma.order.create({
-      data: {
-        userId: req.user.id,
-        total,
-        items: {
-          create: cart.items.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.product.price
-          }))
-        }
-      },
-      include: { items: true }
+
+    // Check stock before doing anything
+    for (const item of cart.items) {
+      if (item.product.stock < item.quantity) {
+        return res.status(400).json({
+          error: `Insufficient stock for "${item.product.name}". Available: ${item.product.stock}`
+        });
+      }
+    }
+
+    const total = cart.items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity, 0
+    );
+
+    // Atomic: create order + decrement stock + clear cart
+    const order = await prisma.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          userId: req.user.id,
+          total,
+          items: {
+            create: cart.items.map((item) => ({
+              productId: item.productId,
+              quantity:  item.quantity,
+              price:     item.product.price,
+            })),
+          },
+        },
+        include: { items: true },
+      });
+
+      await Promise.all(
+        cart.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data:  { stock: { decrement: item.quantity } },
+          })
+        )
+      );
+
+      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+
+      return newOrder;
     });
-    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
 
     res.status(201).json(order);
   } catch (err) {
@@ -73,7 +100,7 @@ router.put('/:id/cancel', auth, async (req, res) => {
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    if (order.userId !== req.user.userId && req.user.role !== 'admin')
+    if (order.userId !== req.user.id && req.user.role !== 'admin')
       return res.status(403).json({ error: 'Access denied' });
 
     if (order.status !== 'pending')

@@ -91,7 +91,7 @@ export default function OrdersPage() {
                 {order.items.map((item) => (
                   <li key={item.id} className="order-item">
                     <img
-                      src={item.product?.imageUrl || '/placeholder.png'}
+                      src={item.product?.image || '/placeholder.png'}
                       alt={item.product?.name}
                       className="order-item__img"
                       onError={(e) => { e.target.src = '/placeholder.png'; }}

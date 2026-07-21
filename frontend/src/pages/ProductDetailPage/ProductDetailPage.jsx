@@ -80,7 +80,7 @@ export default function ProductDetailPage() {
       <div className="pdp__content">
         <div className="pdp__img-wrap">
           <img
-            src={product.imageUrl || '/placeholder.png'}
+            src={product.image || '/placeholder.png'}
             alt={product.name}
             className="pdp__img"
             onError={(e) => { e.target.src = '/placeholder.png'; }}

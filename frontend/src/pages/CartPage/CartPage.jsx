@@ -24,18 +24,18 @@ export default function CartPage() {
     load();
   }, [fetchCart]);
 
-  const handleQtyChange = async (productId, newQty) => {
-    if (newQty < 1) return;
-    setUpdatingId(productId);
-    await updateItem(productId, newQty);
-    setUpdatingId(null);
-  };
+  const handleQtyChange = async (itemId, newQty) => {
+  if (newQty < 1) return;
+  setUpdatingId(itemId);
+  await updateItem(itemId, newQty);
+  setUpdatingId(null);
+};
 
-  const handleRemove = async (productId) => {
-    setUpdatingId(productId);
-    await removeItem(productId);
-    setUpdatingId(null);
-  };
+const handleRemove = async (itemId) => {
+  setUpdatingId(itemId);
+  await removeItem(itemId);
+  setUpdatingId(null);
+};
 
   const handlePlaceOrder = async () => {
     setOrdering(true); setOrderError('');
@@ -83,9 +83,9 @@ export default function CartPage() {
       <div className="cart-page__layout">
         <ul className="cart-page__list">
           {items.map((item) => (
-            <li key={item.productId} className={`cart-item${updatingId === item.productId ? ' cart-item--busy' : ''}`}>
+            <li key={item.id} className={`cart-item${updatingId === item.id ? ' cart-item--busy' : ''}`}>
               <img
-                src={item.product.imageUrl || '/placeholder.png'}
+                src={item.product.image || '/placeholder.png'}
                 alt={item.product.name}
                 className="cart-item__img"
                 onError={(e) => { e.target.src = '/placeholder.png'; }}
@@ -101,12 +101,12 @@ export default function CartPage() {
 
               <div className="cart-item__controls">
                 <button className="cart-item__qty-btn"
-                  onClick={() => handleQtyChange(item.productId, item.quantity - 1)}
-                  disabled={item.quantity <= 1 || updatingId === item.productId}>−</button>
+                  onClick={() => handleQtyChange(item.id, item.quantity - 1)}
+                  disabled={item.quantity <= 1 || updatingId === item.id}>−</button>
                 <span className="cart-item__qty">{item.quantity}</span>
                 <button className="cart-item__qty-btn"
-                  onClick={() => handleQtyChange(item.productId, item.quantity + 1)}
-                  disabled={item.quantity >= item.product.stock || updatingId === item.productId}>+</button>
+                  onClick={() => handleQtyChange(item.id, item.quantity + 1)}
+                  disabled={item.quantity >= item.product.stock || updatingId === item.id}>+</button>
               </div>
 
               <p className="cart-item__line-total">
@@ -114,8 +114,8 @@ export default function CartPage() {
               </p>
 
               <button className="cart-item__remove"
-                onClick={() => handleRemove(item.productId)}
-                disabled={updatingId === item.productId}
+                onClick={() => handleRemove(item.id)}
+                disabled={updatingId === item.id}
                 aria-label="Remove item">✕</button>
             </li>
           ))}
